@@ -3,6 +3,8 @@ import epidemicmodelling.mobility.randomwalk as rw
 from abc import abstractmethod
 import random
 
+# TODO: add two flow layers, one for airplane and one for commuting
+# TODO: add dynamic flows
 
 class Flow:
     def __init__(self,edges,habitants,state_list):

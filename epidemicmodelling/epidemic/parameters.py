@@ -1,3 +1,4 @@
 class Parameters:
-    def __init(self):
+    # TODO: add time and age dependant paramaters
+    def __init__(self):
         pass
