@@ -17,10 +17,10 @@ class Population:
             localhabs = []
             SIZE = self.population_stats[i]['size']
             # Computes size of each age group from total population
-            GROUP1SIZE = math.floor(self.population_stats[i]['0to19'] * SIZE)
-            GROUP2SIZE = math.floor(self.population_stats[i]['20to39'] * SIZE)
-            GROUP3SIZE = math.floor(self.population_stats[i]['40to59'] * SIZE)
-            GROUP4SIZE = math.floor(self.population_stats[i]['60to74'] * SIZE)
+            GROUP1SIZE = math.floor(self.population_stats[i]['0to19'] * SIZE / 100)
+            GROUP2SIZE = math.floor(self.population_stats[i]['20to39'] * SIZE / 100)
+            GROUP3SIZE = math.floor(self.population_stats[i]['40to59'] * SIZE / 100)
+            GROUP4SIZE = math.floor(self.population_stats[i]['60to74'] * SIZE / 100)
             GROUP5SIZE = SIZE - GROUP1SIZE - GROUP2SIZE - GROUP3SIZE - GROUP4SIZE
             # Generates agents for each age group and adds them to the local population
             for _ in range(GROUP1SIZE):
@@ -48,7 +48,7 @@ class Population:
     @staticmethod
     def read():
         # Read json file and stores it in a dictionnary
-        with open('france.json') as json_file:
+        with open('C:/Users/victo/Desktop/PythonProjects/EpidemicModelling/epidemicmodelling/population/france.json') as json_file:
             data = json.load(json_file)
             population_stats = {}
             for p in data:
