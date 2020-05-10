@@ -7,10 +7,10 @@ import random
 # TODO: add dynamic flows
 
 class Flow:
-    def __init__(self,edges,habitants,state_list):
+    def __init__(self,edges,habitants,state_array):
         self.edges = edges
-        self.habitants = habitants
-        self.state_list = state_list
+        self.habitants = habitants # List of agents in each node
+        self.state_array = state_array # Number of agents in each compartment for each node
 
     def getPopulation(self,i):
         # Returns population of node i
@@ -70,7 +70,7 @@ class RandomFlow(Flow):
 
 class WeightedFlow(Flow):
     def popFlow(self):
-        self.habitants,self.state_list = self.newPopulation()
+        self.habitants,self.state_array = self.newPopulation()
 
     def nextStep(self) -> list:
         travellers = []
@@ -88,13 +88,13 @@ class WeightedFlow(Flow):
 
     def newPopulation(self) -> tuple:
         newhabs = self.habitants
-        newstates = self.state_list
+        newstates = self.state_array
         travellers = self.nextStep()
         for a in travellers:
             # Updating habitants
             newhabs[a.prevposition].remove(a)
             newhabs[a.position].append(a)
             # Updating state_list
-            newstates[a.prevposition][a.state]-=1
-            newstates[a.position][a.state] += 1
+            newstates[a.prevposition, a.state]-=1
+            newstates[a.position, a.state] += 1
         return newhabs,newstates

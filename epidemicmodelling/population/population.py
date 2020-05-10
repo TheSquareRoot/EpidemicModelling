@@ -4,11 +4,13 @@ import random
 import json
 import math
 
+# TODO: method that returns the population for each node
 
 class Population:
-    def __init__(self,NETWORKSIZE):
+    def __init__(self, PATH, NETWORKSIZE):
+        self.PATH = PATH # Path to the population json file
         self.NETWORKSIZE = NETWORKSIZE # Number of nodes
-        self.population_stats = self.read() # Population percentage in each age group for each node
+        self.population_stats = self.read(PATH) # Population percentage in each age group for each node
 
     def generate(self):
         # Populates the network with agents
@@ -46,9 +48,9 @@ class Population:
         return agent.Agent(age, sex, position, state)
 
     @staticmethod
-    def read():
+    def read(PATH):
         # Read json file and stores it in a dictionnary
-        with open('C:/Users/victo/Desktop/PythonProjects/EpidemicModelling/epidemicmodelling/population/france.json') as json_file:
+        with open(PATH) as json_file:
             data = json.load(json_file)
             population_stats = {}
             for p in data:
