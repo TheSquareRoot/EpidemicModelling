@@ -3,6 +3,7 @@ import epidemicmodelling.mobility.randomwalk as rw
 from abc import abstractmethod
 import random
 
+# TODO: optimize flow
 # TODO: add two flow layers, one for airplane and one for commuting
 # TODO: add dynamic flows
 

@@ -7,17 +7,17 @@ import math
 # TODO: method that returns the population for each node
 
 class Population:
-    def __init__(self, PATH, NETWORKSIZE):
-        self.PATH = PATH # Path to the population json file
+    def __init__(self, population_stats, NETWORKSIZE):
+        self.population_stats = population_stats # Population percentage in each age group for each node
         self.NETWORKSIZE = NETWORKSIZE # Number of nodes
-        self.population_stats = self.read(PATH) # Population percentage in each age group for each node
 
     def generate(self):
         # Populates the network with agents
         habitants = []
         for i in range(self.NETWORKSIZE):
             localhabs = []
-            SIZE = self.population_stats[i]['size']
+            # SIZE = self.population_stats[i]['size']
+            SIZE = 1000
             # Computes size of each age group from total population
             GROUP1SIZE = math.floor(self.population_stats[i]['0to19'] * SIZE / 100)
             GROUP2SIZE = math.floor(self.population_stats[i]['20to39'] * SIZE / 100)
@@ -46,13 +46,3 @@ class Population:
         position = position
         state = 1
         return agent.Agent(age, sex, position, state)
-
-    @staticmethod
-    def read(PATH):
-        # Read json file and stores it in a dictionnary
-        with open(PATH) as json_file:
-            data = json.load(json_file)
-            population_stats = {}
-            for p in data:
-                population_stats[p['id']] = p
-        return population_stats

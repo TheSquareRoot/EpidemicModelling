@@ -11,12 +11,12 @@ class InitialContagion:
         self.NETWORKSIZE = NETWORKSIZE
 
     def initialise(self):
-        state_array = np.zeros(self.NETWORKSIZE, 4)
+        state_array = np.zeros([self.NETWORKSIZE, 4])
         new_habitants = self.habitants
         # Generates initial state_array
         for i in range(self.NETWORKSIZE):
-            state_array[i, 0] = 100
-            state_array[i, 1] = 100
+            state_array[i, 0] = 1000
+            state_array[i, 1] = 1000
         state_array[self.start_node, 1]-=self.initial_infected
         state_array[self.start_node, 2]=self.initial_infected
         # Update agents' states
