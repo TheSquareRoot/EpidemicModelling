@@ -1,100 +1,76 @@
-import time
-
-from epidemicmodelling.mobility import network
-import epidemicmodelling.population.population as population
+import epidemicmodelling.mobility.network as network
 import epidemicmodelling.mobility.flow as flow
+
+import epidemicmodelling.population.population as population
+
+import epidemicmodelling.epidemic.initialcontagion as contagion
 import epidemicmodelling.epidemic.model as model
 
-import matplotlib.pyplot as plt
+import epidemicmodelling.postprocessing as pp
+
 import numpy as np
+import json
+import time
 
 
 def main():
+    # Network param.
+    NETWORKSIZE = 12
+    # Population param.
+    PATH = 'C:/Users/victo/Desktop/PythonProjects/EpidemicModelling/epidemicmodelling/data/france.json'
+    # Model param.
+    k = 5
+    ptrans = 0.2
+    gamma = 5
+    # Simulation param.
+    initial_infected = 5
+    start_node = 0
+    steps = 70
+
+    # Extracts informations from population json file
+    population_stats = {}
+    with open(PATH) as json_file:
+        data = json.load(json_file)
+        for p in data:
+            population_stats[p['id']] = p
+
     # Network generation
     net = network.Network()
     x, y, edges = net.france()
+    edges = 100 * edges
     # Population generation
-    habitants = []
-    for i in range(12):
-        pop = population.Population(i,1000)
-        habitants.append(pop.generate())
-    print(habitants)
-    # Generate of initial state of infection
-    state_list = []
-    for _ in range(12):
-        state_list.append([1000,1000,0,0])
-    state_list[0][1]=995
-    state_list[0][2]=5
-    habitants[0][0].state = 2
-    habitants[0][1].state = 2
-    habitants[0][2].state = 2
-    habitants[0][3].state = 2
-    habitants[0][4].state = 2
+    pop = population.Population(population_stats, NETWORKSIZE)
+    habitants = pop.generate()
 
-    # Flow simulation on n-steps
-    steps  = 50
-    k      = 5
-    ptrans = 0.2
-    gamma  = 5
+    # Initialize state of infection
+    cont = contagion.InitialContagion(habitants, initial_infected, start_node, NETWORKSIZE)
+    state_array, habitants = cont.initialise()
 
-    Disease = model.SIR(habitants, state_list, k, ptrans, gamma)
-    F = flow.WeightedFlow(edges,habitants,state_list)
-    print(state_list)
+    # Flow simulation & contagion on n steps
+    S = np.zeros([NETWORKSIZE, steps])
+    I = np.zeros([NETWORKSIZE, steps])
+    R = np.zeros([NETWORKSIZE, steps])
 
-    S = np.zeros([12,steps])
-    I = np.zeros([12, steps])
-    R = np.zeros([12, steps])
+    Disease = model.SIR(habitants, state_array, k, ptrans, gamma)
+    F = flow.WeightedFlow(edges, habitants, state_array)
     for i in range(steps):
         F.popFlow()
         Disease.globalspread()
-        print(state_list)
 
-        for j in range(12):
-            S[j][i]=state_list[j][1]
-            I[j][i] = state_list[j][2]
-            R[j][i] = state_list[j][3]
+        for j in range(NETWORKSIZE):
+            S[j][i] = state_array[j][1]
+            I[j][i] = state_array[j][2]
+            R[j][i] = state_array[j][3]
 
     # Display
-    x = [i for i in range(steps)]
-    S1 = [S[0][i] for i in range(steps)]
-    I1 = [I[0][i] for i in range(steps)]
-    R1 = [R[0][i] for i in range(steps)]
-
-    S2 = [S[4][i] for i in range(steps)]
-    I2 = [I[4][i] for i in range(steps)]
-    R2 = [R[4][i] for i in range(steps)]
-
-    S3 = [S[8][i] for i in range(steps)]
-    I3 = [I[8][i] for i in range(steps)]
-    R3 = [R[8][i] for i in range(steps)]
-
-    S4 = [S[10][i] for i in range(steps)]
-    I4 = [I[10][i] for i in range(steps)]
-    R4 = [R[10][i] for i in range(steps)]
-
-    fig, a = plt.subplots(2, 2)
-
-    a[0, 0].plot(x, S1, color='g')
-    a[0, 0].plot(x, I1, color='r')
-    a[0, 0].plot(x, R1, color='y')
-    a[0, 0].set_title('Ville 0')
-
-    a[0, 1].plot(x, S2, color='g')
-    a[0, 1].plot(x, I2, color='r')
-    a[0, 1].plot(x, R2, color='y')
-    a[0, 1].set_title('Ville 4')
-
-    a[1, 0].plot(x, S3, color='g')
-    a[1, 0].plot(x, I3, color='r')
-    a[1, 0].plot(x, R3, color='y')
-    a[1, 0].set_title('Ville 8')
-
-    a[1, 1].plot(x, S4, color='g')
-    a[1, 1].plot(x, I4, color='r')
-    a[1, 1].plot(x, R4, color='y')
-    a[1, 1].set_title('Ville 10')
-
-    plt.show()
+    plot = pp.DisplaySIR(steps, NETWORKSIZE, S, I, R)
+    analysis = pp.StatisticsSIR(steps, NETWORKSIZE, S, I, R)
+    plot.plot_global()
+    plot.plot_infected()
+    for i in range(NETWORKSIZE):
+        peak, time = analysis.local_infection_peak(i)
+        print(f'Infected in node {i} peaked at {peak} on day {time}')
+        print('----------------------------------------------------')
 
 if __name__ == '__main__':
     start_time = time.time()

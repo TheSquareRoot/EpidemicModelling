@@ -1,6 +1,7 @@
 import epidemicmodelling.mobility.randomwalk as rw
 
 from abc import abstractmethod
+import copy
 import random
 
 # TODO: optimize flow
@@ -75,6 +76,7 @@ class WeightedFlow(Flow):
 
     def nextStep(self) -> list:
         travellers = []
+        temp_habs = copy.deepcopy(self.habitants)
         for i in range(len(self.habitants)):
             for j in range(len(self.edges[i])):
                 counter = 0
